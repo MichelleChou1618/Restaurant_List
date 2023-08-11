@@ -59,6 +59,22 @@ app.get('/', (req, res) => {
     .catch(error => console.error(error)) // 錯誤處理
 })
 
+// 設定首頁 - 點擊'新增餐廳' button - 路由: 至New頁面: 表單
+app.get('/restaurants/new', (req, res) => {
+
+  return res.render('new') 
+   
+})
+
+//設定New頁面 - 點擊'新增餐廳' button -路由: 新增一筆Restaurant
+app.post('/restaurants', (req, res) => {
+  const restaurant = req.body       // 從 req.body 拿出表單裡資料
+  //console.log(restaurant)
+  return Restaurant.create(restaurant)     // 存入資料庫 => Restaurant.create(): 資料庫新增資料
+     .then(() => res.redirect('/')) // 新增完成後導回首頁
+     .catch(error => console.log(error))
+})
+
 
 app.get('/restaurants/:restaurant_id', (req, res) => {
   //console.log(req.params.restaurant_id)
