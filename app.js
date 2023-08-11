@@ -111,7 +111,7 @@ app.get('/restaurants/:restaurant_id/edit', (req, res) => {
       .catch(error => console.log(error))      //任一步驟出現失敗，都會跳進錯誤處理
   })
 
-  // 設定首頁頁面 - 點擊'Delete' button - 路由: 刪除該筆restaurant
+// 設定首頁頁面 - 點擊'Delete' button - 路由: 刪除該筆restaurant
 app.post('/restaurants/:restaurant_id/delete', (req, res) => {
   const id = req.params.restaurant_id      //取得網址上的識別碼，用來查詢使用者想刪除的 restaurant
   return Restaurant.findById(id)      //使用 Restaurant.findById() 查詢資料，資料庫查詢成功以後，會把資料放進 restaurant
@@ -119,16 +119,31 @@ app.post('/restaurants/:restaurant_id/delete', (req, res) => {
     .then(() => res.redirect('/')) //成功刪除以後，使用 redirect 重新呼叫首頁，此時會重新發送請求給 GET /，進入到另一條路由。
     .catch(error => console.log(error))
 })
+
+// 設定首頁頁面 - 點擊'Search' button - 路由: filter restaurants
 app.get('/search', (req, res) => {
   //console.log(req.query)
-  const keyword = req.query.keyword
+  const keyword = req.query.keyword.trim().toLowerCase()
 
   if (!keyword) {
     return res.redirect("/")
   }
   
-  const filteredRestaurants = restaurantList.results.filter(restaurant => restaurant.name.toLowerCase().includes(keyword.toLowerCase()) || restaurant.category.toLowerCase().includes(keyword.toLowerCase()))
-  res.render('index', { restaurant: filteredRestaurants, keyword: keyword})
+  // const filteredRestaurants = restaurantList.results.filter(restaurant => restaurant.name.toLowerCase().includes(keyword.toLowerCase()) || restaurant.category.toLowerCase().includes(keyword.toLowerCase()))
+  // res.render('index', { restaurant: filteredRestaurants, keyword: keyword})
+
+  Restaurant.find({})
+    .lean()
+    .then(restaurants => {
+      const filteredRestaurants = restaurants.filter(
+        data =>
+          data.name.toLowerCase().includes(keyword) ||
+          data.category.includes(keyword)
+      )
+      res.render("index", { restaurant: filteredRestaurants, keyword: keyword })
+    })
+    .catch(err => console.log(err))
+
 })
 
 
