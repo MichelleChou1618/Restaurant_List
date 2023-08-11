@@ -16,7 +16,7 @@ if (process.env.NODE_ENV !== 'production') {
 
 //載入 mongoose
 const mongoose = require('mongoose')
-//// 設定連線到 mongoDB
+// 設定連線到 mongoDB
 mongoose.connect(process.env.MONGODB_URI, { useNewUrlParser: true, useUnifiedTopology: true })
 // 取得資料庫連線狀態
 const db = mongoose.connection
