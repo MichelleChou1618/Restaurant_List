@@ -6,8 +6,14 @@ const port = 3000
 // require express-handlebars here
 const exphbs = require('express-handlebars')
 
-//require restaurant.json here
-const restaurantList = require('./restaurant.json')
+//require restaurant.json here => 改成由Restaurant model自資料庫取
+// const restaurantList = require('./restaurant.json')
+// 載入 Restaurant model
+const Restaurant = require('./models/restaurant')
+
+// 引用 body-parser
+const bodyParser = require('body-parser')
+
 
 // 加入這段 code, 僅在非正式環境時, 使用 dotenv
 if (process.env.NODE_ENV !== 'production') {
@@ -36,13 +42,23 @@ app.set('view engine', 'handlebars')
 // setting static files
 app.use(express.static('public'))
 
+// 用 app.use 規定每一筆請求都需要透過 body-parser 進行前置處理
+app.use(bodyParser.urlencoded({ extended: true }))
+
 
 
 // routes setting
+//設定首頁路由: 瀏覽所有Restaurant
 app.get('/', (req, res) => {
   
-  res.render('index', { restaurant: restaurantList.results })
+  //res.render('index', { restaurant: restaurantList.results })
+  //把 Restaurant model 的資料傳到樣板裡
+  return Restaurant.find() // 取出 Restaurant model 裡的所有資料 => Todo.find(): 至資料庫取出所有資料
+    .lean() //把 Mongoose 的 Model 物件轉換成乾淨的 JavaScript 資料陣列
+    .then((restaurants) => res.render('index', { restaurant: restaurants })) //將資料傳給 index 樣板
+    .catch(error => console.error(error)) // 錯誤處理
 })
+
 
 app.get('/restaurants/:restaurant_id', (req, res) => {
   //console.log(req.params.restaurant_id)
