@@ -75,11 +75,17 @@ app.post('/restaurants', (req, res) => {
      .catch(error => console.log(error))
 })
 
-
+//設定首頁 - 點擊Card -路由: 至Show頁面 => 瀏覽特定 Restaurant 
 app.get('/restaurants/:restaurant_id', (req, res) => {
   //console.log(req.params.restaurant_id)
-  const restaurant = restaurantList.results.find(restaurant => restaurant.id.toString() === req.params.restaurant_id)
-  res.render('show', { restaurant: restaurant})
+  // const restaurant = restaurantList.results.find(restaurant => restaurant.id.toString() === req.params.restaurant_id)
+  // res.render('show', { restaurant: restaurant})
+
+  const id = req.params.restaurant_id //從req.params取出動態路由裡的restaurant_id
+  return Restaurant.findById(id) //至資料庫用id查詢特定一筆 restaurant資料 => Restaurant.findById()
+     .lean()               //轉換成乾淨的 JavaScript 資料物件
+     .then((restaurant) => res.render('show', { restaurant: restaurant })) //資料會被存在restaurant 變數裡，傳給樣板引擎，請 Handlebars 幫忙組裝 show 頁面
+     .catch(error => console.log(error))
 })
 
 app.get('/search', (req, res) => {
