@@ -18,6 +18,9 @@ const Restaurant = require('./models/restaurant')
 // 引用 body-parser
 const bodyParser = require('body-parser')
 
+// 載入 method-override
+const methodOverride = require('method-override') 
+
 
 // 加入這段 code, 僅在非正式環境時, 使用 dotenv
 if (process.env.NODE_ENV !== 'production') {
@@ -27,7 +30,7 @@ if (process.env.NODE_ENV !== 'production') {
 //載入 mongoose
 const mongoose = require('mongoose')
 // 設定連線到 mongoDB
-mongoose.connect(process.env.MONGODB_URI, { useNewUrlParser: true, useUnifiedTopology: true, useFindAndModify: true })
+mongoose.connect(process.env.MONGODB_URI, { useNewUrlParser: true, useUnifiedTopology: true, useFindAndModify: false })
 // 取得資料庫連線狀態
 const db = mongoose.connection
 // 連線異常
@@ -48,6 +51,9 @@ app.use(express.static('public'))
 
 // 用 app.use 規定每一筆請求都需要透過 body-parser 進行前置處理
 app.use(bodyParser.urlencoded({ extended: true }))
+
+// 設定每一筆請求都會透過 methodOverride 進行前置處理
+app.use(methodOverride('_method'))
 
 
 
@@ -102,7 +108,7 @@ app.get('/restaurants/:restaurant_id/edit', (req, res) => {
 })
 
 // 設定Edit頁面 - 點擊'儲存修改' button - 路由: Update一筆restaurant
-app.post('/restaurants/:restaurant_id/edit', (req, res) => {
+app.put('/restaurants/:restaurant_id', (req, res) => {
   const id = req.params.restaurant_id   //從req.params取出動態路由裡的id 
   //const newRestaurant = req.body // 從 req.body 拿出表單裡資料
   // return Restaurant.findById(id)   //至資料庫用id查詢特定一筆 restaurant 資料 => Todo.findById()
@@ -116,7 +122,7 @@ app.post('/restaurants/:restaurant_id/edit', (req, res) => {
 })
 
 // 設定首頁頁面 - 點擊'Delete' button - 路由: 刪除該筆restaurant
-app.post('/restaurants/:restaurant_id/delete', (req, res) => {
+app.delete('/restaurants/:restaurant_id', (req, res) => {
   const id = req.params.restaurant_id      //取得網址上的識別碼，用來查詢使用者想刪除的 restaurant
   return Restaurant.findById(id)      //使用 Restaurant.findById() 查詢資料，資料庫查詢成功以後，會把資料放進 restaurant
     .then(restaurant => restaurant.remove()) //用 restaurant.remove() 刪除這筆資料
