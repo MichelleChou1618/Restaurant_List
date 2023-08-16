@@ -1,6 +1,6 @@
 # 我的餐廳清單
 
-![Index page about Restaurant List](./public/image/index_2.png)
+![Index page about Restaurant List](./public/image/index_3.png)
 
 ## 介紹
 
@@ -11,7 +11,7 @@
 - 查看所有餐廳
 - 瀏覽餐廳的詳細資訊
 - 連結餐廳的地址到 Google 地圖
-- 搜尋特定餐廳
+- 搜尋特定餐廳, 並依選項排序
 - 新增餐廳
 - 編輯餐廳
 - 刪除餐廳
@@ -53,3 +53,5 @@
 - Font-awesome 5.8.1
 - MongoDB
 - mongoose 5.9.7
+- handlebars-helpers 0.10.0
+- method-override  3.0.0

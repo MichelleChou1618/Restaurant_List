@@ -6,7 +6,7 @@
   "scripts": {
     "start": "node app.js",
     "dev": "nodemon app.js",
-    "test": "echo \"Error: no test specified\" && exit 1",
+    "test": "standard && node my-tests.js",
     "seed": "node models/seeds/restaurantSeeder.js"
   },
   "keywords": [],
@@ -20,6 +20,7 @@
     "mongoose": "^5.9.7"
   },
   "devDependencies": {
-    "dotenv": "^16.3.1"
+    "dotenv": "^16.3.1",
+    "standard": "*"
   }
 }
