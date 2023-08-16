@@ -6,6 +6,10 @@ const port = 3000
 // require express-handlebars here
 const exphbs = require('express-handlebars')
 
+//引用handlebars-helpers
+const hbshelpers = require('handlebars-helpers');
+const multihelpers = hbshelpers();
+
 //require restaurant.json here => 改成由Restaurant model自資料庫取
 // const restaurantList = require('./restaurant.json')
 // 載入 Restaurant model
@@ -36,7 +40,7 @@ db.once('open', () => {
 })
 
 // setting template engine
-app.engine('handlebars', exphbs({ defaultLayout: 'main' }))
+app.engine('handlebars', exphbs({ defaultLayout: 'main', helpers: multihelpers }))
 app.set('view engine', 'handlebars')
 
 // setting static files
@@ -50,7 +54,7 @@ app.use(bodyParser.urlencoded({ extended: true }))
 // routes setting
 //設定首頁路由: 瀏覽所有Restaurant
 app.get('/', (req, res) => {
-  
+
   //res.render('index', { restaurant: restaurantList.results })
   //把 Restaurant model 的資料傳到樣板裡
   return Restaurant.find() // 取出 Restaurant model 裡的所有資料 => Todo.find(): 至資料庫取出所有資料
@@ -62,8 +66,8 @@ app.get('/', (req, res) => {
 // 設定首頁 - 點擊'新增餐廳' button - 路由: 至New頁面: 表單
 app.get('/restaurants/new', (req, res) => {
 
-  return res.render('new') 
-   
+  return res.render('new')
+
 })
 
 //設定New頁面 - 點擊'新增餐廳' button -路由: 新增一筆Restaurant
@@ -71,8 +75,8 @@ app.post('/restaurants', (req, res) => {
   const restaurant = req.body       // 從 req.body 拿出表單裡資料
   //console.log(restaurant)
   return Restaurant.create(restaurant)     // 存入資料庫 => Restaurant.create(): 資料庫新增資料
-     .then(() => res.redirect('/')) // 新增完成後導回首頁
-     .catch(error => console.log(error))
+    .then(() => res.redirect('/')) // 新增完成後導回首頁
+    .catch(error => console.log(error))
 })
 
 //設定首頁 - 點擊Card -路由: 至Show頁面 => 瀏覽特定 Restaurant 
@@ -83,9 +87,9 @@ app.get('/restaurants/:restaurant_id', (req, res) => {
 
   const id = req.params.restaurant_id //從req.params取出動態路由裡的restaurant_id
   return Restaurant.findById(id) //至資料庫用id查詢特定一筆 restaurant資料 => Restaurant.findById()
-     .lean()               //轉換成乾淨的 JavaScript 資料物件
-     .then((restaurant) => res.render('show', { restaurant: restaurant })) //資料會被存在restaurant 變數裡，傳給樣板引擎，請 Handlebars 幫忙組裝 show 頁面
-     .catch(error => console.log(error))
+    .lean()               //轉換成乾淨的 JavaScript 資料物件
+    .then((restaurant) => res.render('show', { restaurant: restaurant })) //資料會被存在restaurant 變數裡，傳給樣板引擎，請 Handlebars 幫忙組裝 show 頁面
+    .catch(error => console.log(error))
 })
 
 //設定首頁, Show頁面 - 點擊'Edit' button - 路由: 至Edit頁面: 表單with 預設資料 
@@ -97,19 +101,19 @@ app.get('/restaurants/:restaurant_id/edit', (req, res) => {
     .catch(error => console.log(error))
 })
 
-  // 設定Edit頁面 - 點擊'儲存修改' button - 路由: Update一筆restaurant
-  app.post('/restaurants/:restaurant_id/edit', (req, res) => {
-    const id = req.params.restaurant_id   //從req.params取出動態路由裡的id 
-    //const newRestaurant = req.body // 從 req.body 拿出表單裡資料
-    // return Restaurant.findById(id)   //至資料庫用id查詢特定一筆 restaurant 資料 => Todo.findById()
-    //   .then(restaurant => {          // 如果查詢成功, 修改後儲存資料
-    //     restaurant = newRestaurant
-    //     return restaurant.save()
-    //   })
-    return Restaurant.findByIdAndUpdate(id, req.body)
-      .then(() => res.redirect(`/restaurants/${id}`)) //如果儲存成功, 導回Show頁面
-      .catch(error => console.log(error))      //任一步驟出現失敗，都會跳進錯誤處理
-  })
+// 設定Edit頁面 - 點擊'儲存修改' button - 路由: Update一筆restaurant
+app.post('/restaurants/:restaurant_id/edit', (req, res) => {
+  const id = req.params.restaurant_id   //從req.params取出動態路由裡的id 
+  //const newRestaurant = req.body // 從 req.body 拿出表單裡資料
+  // return Restaurant.findById(id)   //至資料庫用id查詢特定一筆 restaurant 資料 => Todo.findById()
+  //   .then(restaurant => {          // 如果查詢成功, 修改後儲存資料
+  //     restaurant = newRestaurant
+  //     return restaurant.save()
+  //   })
+  return Restaurant.findByIdAndUpdate(id, req.body)
+    .then(() => res.redirect(`/restaurants/${id}`)) //如果儲存成功, 導回Show頁面
+    .catch(error => console.log(error))      //任一步驟出現失敗，都會跳進錯誤處理
+})
 
 // 設定首頁頁面 - 點擊'Delete' button - 路由: 刪除該筆restaurant
 app.post('/restaurants/:restaurant_id/delete', (req, res) => {
@@ -120,28 +124,56 @@ app.post('/restaurants/:restaurant_id/delete', (req, res) => {
     .catch(error => console.log(error))
 })
 
-// 設定首頁頁面 - 點擊'Search' button - 路由: filter restaurants
+// 設定首頁頁面 - 點擊'Search' button - 路由: filter restaurants + 做sort
 app.get('/search', (req, res) => {
   //console.log(req.query)
   const keyword = req.query.keyword.trim().toLowerCase()
+  const sort = req.query.sort.trim().toLowerCase()
+  let sortCriteria = {}
 
+  //判斷sort要用哪種criteria
+  switch (sort) {
+    case 'a>z':
+       sortCriteria = { name_en: 'asc' }
+      break
+
+    case 'z>a':
+       sortCriteria = { name_en: 'desc' }
+      break
+
+    case 'category':
+       sortCriteria = { category: 'asc' }
+      break
+
+    case 'location':
+       sortCriteria = { location: 'asc' }
+      break
+
+  }
+
+  //console.log(sort, sortCriteria)
+
+  /*
   if (!keyword) {
     return res.redirect("/")
   }
-  
+  */
+
   // const filteredRestaurants = restaurantList.results.filter(restaurant => restaurant.name.toLowerCase().includes(keyword.toLowerCase()) || restaurant.category.toLowerCase().includes(keyword.toLowerCase()))
   // res.render('index', { restaurant: filteredRestaurants, keyword: keyword})
 
   Restaurant.find({})
     .lean()
+    .sort(sortCriteria)
     .then(restaurants => {
-      const filteredRestaurants = restaurants.filter(
+      const filteredRestaurants = keyword ? (restaurants.filter(
         data =>
           data.name.toLowerCase().includes(keyword) ||
           data.category.includes(keyword)
-      )
-      res.render("index", { restaurant: filteredRestaurants, keyword: keyword })
+      )) : restaurants
+      res.render("index", { restaurant: filteredRestaurants, keyword: keyword, sort: sort })
     })
+
     .catch(err => console.log(err))
 
 })
