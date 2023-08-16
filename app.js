@@ -21,6 +21,9 @@ const bodyParser = require('body-parser')
 // 載入 method-override
 const methodOverride = require('method-override') 
 
+// 引用路由器
+const routes = require('./routes')
+
 
 // 加入這段 code, 僅在非正式環境時, 使用 dotenv
 if (process.env.NODE_ENV !== 'production') {
@@ -55,8 +58,11 @@ app.use(bodyParser.urlencoded({ extended: true }))
 // 設定每一筆請求都會透過 methodOverride 進行前置處理
 app.use(methodOverride('_method'))
 
+// 將 request 導入路由器
+app.use(routes)
 
 
+/*
 // routes setting
 //設定首頁路由: 瀏覽所有Restaurant
 app.get('/', (req, res) => {
@@ -168,6 +174,7 @@ app.get('/search', (req, res) => {
   // const filteredRestaurants = restaurantList.results.filter(restaurant => restaurant.name.toLowerCase().includes(keyword.toLowerCase()) || restaurant.category.toLowerCase().includes(keyword.toLowerCase()))
   // res.render('index', { restaurant: filteredRestaurants, keyword: keyword})
 
+  /*
   Restaurant.find({})
     .lean()
     .sort(sortCriteria)
@@ -183,6 +190,7 @@ app.get('/search', (req, res) => {
     .catch(err => console.log(err))
 
 })
+*/
 
 
 // start and listen on the Express server
