@@ -24,7 +24,10 @@ const methodOverride = require('method-override')
 // 引用路由器
 const routes = require('./routes')
 
+//引用mongoose
+require('./config/mongoose')
 
+/*
 // 加入這段 code, 僅在非正式環境時, 使用 dotenv
 if (process.env.NODE_ENV !== 'production') {
   require('dotenv').config()
@@ -44,6 +47,7 @@ db.on('error', () => {
 db.once('open', () => {
   console.log('mongodb connected!')
 })
+*/
 
 // setting template engine
 app.engine('handlebars', exphbs({ defaultLayout: 'main', helpers: multihelpers }))

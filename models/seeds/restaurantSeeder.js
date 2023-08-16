@@ -1,7 +1,10 @@
 // 設定資料庫連線: 把 app.js 裡和「資料庫連線」有關的程式碼都複製過來一份，另外，也要一併載入 Restaurant model，因為這裡要操作的資料和 Restaurant 有關
-const mongoose = require('mongoose') ////載入 mongoose
+//const mongoose = require('mongoose') ////載入 mongoose
 const Restaurant = require('../restaurant') // 載入 restaurant model
 const restaurantList = require("../../restaurant.json").results //載入 restaurant.json
+const db = require('../../config/mongoose') //引用mongoose設定檔
+
+/*
 if (process.env.NODE_ENV !== 'production') {
   require('dotenv').config()
 }
@@ -14,6 +17,7 @@ const db = mongoose.connection
 db.on('error', () => {
   console.log('mongodb error!')
 })
+*/
 // 連線成功
 db.once('open', () => {
   console.log('running restaurantSeeder script...')
